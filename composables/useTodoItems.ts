@@ -1,63 +1,79 @@
-import { Ref, ref } from '@nuxtjs/composition-api'
-import { TodoItem, TodoItemStatus } from '../type/TodoItem'
-import * as uuid from 'uuid'
-import { TodoItemState } from './useGlobalState'
+import { Ref, ref } from '@nuxtjs/composition-api';
+import { TodoItem, TodoItemStatus } from '../type/TodoItem';
+import * as uuid from 'uuid';
+import { Title } from './type/ValueObjects';
+import { TodoAppRuntimeError } from './application/exception/TodoAppRuntimeError';
+import { ErrorMessage } from './application/const/ErrorMessage';
+import { TodoItemRepository } from './repository/TodoItemRepository';
 
-export default function useTodoItems (todoItemState: TodoItemState) {
-    const rawItems: TodoItem[] = todoItemState.getAll()
+export default function useTodoItems(todoItemRepository: TodoItemRepository) {
+  // state
+  const items: Ref<TodoItem[]> = todoItemRepository.getAll();
+  const currentItemTitle: Ref<string> = ref<string>('');
+  const currentItemDescription: Ref<string> = ref<string>('');
+  const currentItemStatus: Ref<TodoItemStatus> = ref<TodoItemStatus>('未着手');
+  const errorMessage: Ref<string> = ref<string>('');
+  const hasError: Ref<boolean> = ref<boolean>(false);
 
-    // state
-    const currentItemTitle: Ref<string> = ref<string>('')
-    const currentItemDescription: Ref<string> = ref<string>('')
-    const currentItemStatus: Ref<TodoItemStatus> = ref<TodoItemStatus>('未着手')
-    const items: Ref<TodoItem[]> = ref<TodoItem[]>(rawItems)
+  /**
+   * タスクを新規追加
+   */
+  const addTask = (): void => {
+    clearError();
 
-    /**
-     * タスクを新規追加
-     */
-    const addTask = (): void => {
-        items.value.push({
-            id: uuid.v4().toString(),
-            title: currentItemTitle.value,
-            description: currentItemDescription.value,
-            status: '未着手'
-        })
+    try {
+      const title = new Title(currentItemTitle.value);
 
-        currentItemTitle.value = ''
-        currentItemDescription.value = ''
+      todoItemRepository.save({
+        id: uuid.v4().toString(),
+        title: title.value,
+        description: currentItemDescription.value,
+        status: '未着手',
+      });
+
+      currentItemTitle.value = '';
+      currentItemDescription.value = '';
+    } catch (e) {
+      hasError.value = true;
+      if (e instanceof TodoAppRuntimeError) {
+        errorMessage.value = ErrorMessage.getReadableMessage(e.message);
+      }
     }
+  };
 
-    /**
-     * 任意のステータスに変更する
-     * @param id 
-     * @param status 
-     */
-    const updateStatus = (id: string): void => {
-        console.log(id, currentItemStatus.value)
-        const first = items.value
-                .filter((item) => item.id === id)[0]
-        first.status = currentItemStatus.value
-        items.value[0] = first
-    }
+  /**
+   * 任意のステータスに変更する
+   * @param id
+   */
+  const updateStatus = (id: string): void => {
+    todoItemRepository.updateStatus(id, currentItemStatus);
+  };
 
-    /**
-     * 完了にする
-     * @param {string} id
-     */
-    const complete = (id: string): void => {
-        items.value
-            .filter((item) => item.id === id)
-            .map((item) => item.status = '完了')
-        items.value = items.value.filter((item) => item.id !== id)
-    }
+  /**
+   * 完了にする
+   * @param {string} id
+   */
+  const complete = (id: string): void => {
+    items.value
+      .filter((item) => item.id === id)
+      .map((item) => (item.status = '完了'));
+    items.value = items.value.filter((item) => item.id !== id);
+  };
 
-    return {
-        currentItemTitle,
-        currentItemDescription,
-        currentItemStatus,
-        items,
-        addTask,
-        updateStatus,
-        complete
-    }
+  const clearError = (): void => {
+    hasError.value = false;
+    errorMessage.value = '';
+  };
+
+  return {
+    currentItemTitle,
+    currentItemDescription,
+    currentItemStatus,
+    items,
+    hasError,
+    errorMessage,
+    addTask,
+    updateStatus,
+    complete,
+  };
 }
