@@ -1,5 +1,5 @@
 <template>
-  <p v-if="hasError"> {{ errorMessage }} </p>
+  <p v-if="errorMessage === 'e.runtime.title.not_blank'"> タイトルを入力してください {{ errorMessage }} </p>
 </template>
 
 <script lang="ts">
@@ -16,12 +16,10 @@ export default defineComponent({
     }
 
     const {
-      hasError,
       errorMessage
     } = useTodoItems(todoItemState)
 
     return {
-      hasError,
       errorMessage
     }
   },

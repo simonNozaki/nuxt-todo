@@ -13,7 +13,6 @@ export default function useTodoItems(todoItemRepository: TodoItemRepository) {
   const currentItemDescription: Ref<string> = ref<string>('');
   const currentItemStatus: Ref<TodoItemStatus> = ref<TodoItemStatus>('未着手');
   const errorMessage: Ref<string> = ref<string>('');
-  const hasError: Ref<boolean> = ref<boolean>(false);
 
   /**
    * タスクを新規追加
@@ -34,9 +33,11 @@ export default function useTodoItems(todoItemRepository: TodoItemRepository) {
       currentItemTitle.value = '';
       currentItemDescription.value = '';
     } catch (e) {
-      hasError.value = true;
       if (e instanceof TodoAppRuntimeError) {
-        errorMessage.value = ErrorMessage.getReadableMessage(e.message);
+        console.log(e)
+        errorMessage.value = e.message;
+      } else {
+        errorMessage.value = ErrorMessage.getUnexpectedError()
       }
     }
   };
@@ -61,7 +62,6 @@ export default function useTodoItems(todoItemRepository: TodoItemRepository) {
   };
 
   const clearError = (): void => {
-    hasError.value = false;
     errorMessage.value = '';
   };
 
@@ -70,7 +70,6 @@ export default function useTodoItems(todoItemRepository: TodoItemRepository) {
     currentItemDescription,
     currentItemStatus,
     items,
-    hasError,
     errorMessage,
     addTask,
     updateStatus,

@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div>
         <table>
         <tr>
             <th> # </th>
@@ -28,12 +28,6 @@
             </tr>
         </tbody>
         </table>
-
-        <TodoError />
-        
-        <input type="text" v-model="currentItemTitle" placeholder="タイトルを入力...">
-        <input type="text" v-model="currentItemDescription" placeholder="コメントを入力...">
-        <button class="waves-effect waves-light btn" @click="addTask()"> 追加 </button>
     </div>
 </template>
 
@@ -55,7 +49,6 @@ export default defineComponent({
             currentItemDescription,
             currentItemStatus,
             items,
-            addTask,
             updateStatus,
             complete
         } = useTodoItems(todoItemState)
@@ -65,7 +58,6 @@ export default defineComponent({
             currentItemDescription,
             currentItemStatus,
             items,
-            addTask,
             updateStatus,
             complete
         }
