@@ -2,7 +2,7 @@ import { Ref } from '@nuxtjs/composition-api';
 import { TodoItem } from '~/type/TodoItem';
 
 /**
- * TODOアイテム状態管理
+ * TODO項目 リポジトリ
  */
 export interface TodoItemRepository {
   getAll(): Ref<TodoItem[]>;
@@ -10,4 +10,6 @@ export interface TodoItemRepository {
   save(item: TodoItem): void;
 
   updateStatus(id: string, status: Ref<string>): void;
+
+  complete(id: string): void;
 }

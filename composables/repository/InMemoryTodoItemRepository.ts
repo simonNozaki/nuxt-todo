@@ -36,4 +36,11 @@ export class InMemoryTodoItemRepository implements TodoItemRepository {
     first.status = status.value;
     this._items.value[0] = first;
   }
+
+  complete(id: string): void {
+    this._items.value
+      .filter((item) => item.id === id)
+      .map((item) => (item.status = '完了'));
+    this._items.value = this._items.value.filter((item) => item.id !== id);
+  }
 }
