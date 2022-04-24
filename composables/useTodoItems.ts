@@ -1,10 +1,9 @@
 import { Ref, ref } from '@nuxtjs/composition-api';
 import { TodoItem, TodoItemStatus } from '../type/TodoItem';
 import * as uuid from 'uuid';
-import { Title } from './type/ValueObjects';
-import { TodoAppRuntimeError } from './application/exception/TodoAppRuntimeError';
-import { ErrorMessage } from './application/const/ErrorMessage';
 import { TodoItemRepository } from './repository/TodoItemRepository';
+import { Description } from './domain/type/Description';
+import { Title } from './domain/type/Title';
 
 export default function useTodoItems(todoItemRepository: TodoItemRepository) {
   // state
@@ -20,26 +19,26 @@ export default function useTodoItems(todoItemRepository: TodoItemRepository) {
   const addTask = (): void => {
     clearError();
 
-    try {
-      const title = new Title(currentItemTitle.value);
-
-      todoItemRepository.save({
-        id: uuid.v4().toString(),
-        title: title.value,
-        description: currentItemDescription.value,
-        status: '未着手',
-      });
-
-      currentItemTitle.value = '';
-      currentItemDescription.value = '';
-    } catch (e) {
-      if (e instanceof TodoAppRuntimeError) {
-        console.log(e)
-        errorMessage.value = e.message;
-      } else {
-        errorMessage.value = ErrorMessage.getUnexpectedError()
-      }
+    const title = new Title(currentItemTitle.value);
+    const description = new Description(currentItemDescription.value);
+    if (title.hasError() || description.hasError()) {
+      const message = title.errors
+        .concat(description.errors)
+        .map((e) => `${e}; `)
+        .join();
+      errorMessage.value = message;
+      return;
     }
+
+    todoItemRepository.save({
+      id: uuid.v4().toString(),
+      title: title.value,
+      description: currentItemDescription.value,
+      status: '未着手',
+    });
+
+    currentItemTitle.value = '';
+    currentItemDescription.value = '';
   };
 
   /**
