@@ -1,33 +1,36 @@
 <template>
     <div>
         <table>
-        <tr>
-            <th> # </th>
-            <th> TODO </th>
-            <th> コメント </th>
-            <th> ステータス </th>
-            <th> </th>
-            <th></th>
-        </tr>
-        <tbody v-for="(item, index) in items" :key="index">
-            <tr>
-                <td> {{ index }} </td>
-                <td> {{ item.title }} </td>
-                <td> {{ item.description }} </td>
-                <td> {{ item.status }} </td>
-                <td>
-                    <label for="todo-status"> ステータスを更新... </label>
-                    <select v-model="currentItemStatus" id="todo-status" @change="updateStatus(item.id)">
-                        <option value="着手中">着手中</option>
-                        <option value="対処しない">対処しない</option>
-                    </select>
-                </td>
-                <td>
-                    <button class="waves-effect waves-light btn" @click="complete(item.id)"> 完了 </button>
-                </td>
-            </tr>
-        </tbody>
+            <thead>
+                <tr>
+                    <th> # </th>
+                    <th> TODO </th>
+                    <th> コメント </th>
+                    <th> ステータス </th>
+                    <th> </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody v-for="(item, index) in items" :key="index">
+                <tr>
+                    <td> {{ index }} </td>
+                    <td> {{ item.title }} </td>
+                    <td> {{ item.description }} </td>
+                    <td> {{ item.status }} </td>
+                    <td>
+                        <label for="todo-status"> ステータスを更新... </label>
+                        <select v-model="currentItemStatus" id="todo-status" @change="updateStatus(item.id)">
+                            <option value="着手中">着手中</option>
+                            <option value="対処しない">対処しない</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="waves-effect waves-light btn" @click="complete(item.id)"> 完了 </button>
+                    </td>
+                </tr>
+            </tbody>
         </table>
+        {{ errorMessage }}
     </div>
 </template>
 
@@ -49,6 +52,7 @@ export default defineComponent({
             currentItemDescription,
             currentItemStatus,
             items,
+            errorMessage,
             updateStatus,
             complete
         } = useTodoItems(todoItemState)
@@ -58,6 +62,7 @@ export default defineComponent({
             currentItemDescription,
             currentItemStatus,
             items,
+            errorMessage,
             updateStatus,
             complete
         }

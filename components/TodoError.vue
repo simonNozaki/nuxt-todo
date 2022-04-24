@@ -1,5 +1,7 @@
 <template>
-  <p v-if="errorMessage === 'e.runtime.title.not_blank'"> タイトルを入力してください {{ errorMessage }} </p>
+  <div>
+    <span v-text="errorMessage"></span>
+  </div>
 </template>
 
 <script lang="ts">
@@ -9,6 +11,9 @@ import { TodoItemKey } from '~/composables/repository/InMemoryTodoItemRepository
 import { TodoItemRepository } from '~/composables/repository/TodoItemRepository'
 
 export default defineComponent({
+  props: {
+    errorMessage: String,
+  },
   setup() {
     const todoItemState: TodoItemRepository | undefined = inject<TodoItemRepository>(TodoItemKey)
     if (!todoItemState) {
